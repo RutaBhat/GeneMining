@@ -8,6 +8,7 @@ import re
 import string
 from Bio import Entrez #needed to check genes against Entrez Database
 
+
 def searchForArticleGivenGeneName(query):
 	'''Given gene Name as query it will return the list of relevant article Id's which have the gene.
 	'''
@@ -54,6 +55,10 @@ def downloadArticle(PMCID):
 	article = BeautifulSoup(a.html)
 	return article
 
+def getTitleFromArticle(article):
+	title = article.find('title').getText()
+	return title.encode('utf-8')
+
 def makeGeneListFromArticle(article):
 	''' This function will get all the italicized words from the given html article as they could be genes and will return a gene list.
 	'''
@@ -65,3 +70,56 @@ def makeGeneListFromArticle(article):
 			geneList.append(encodedString)
 
 	return list(set(geneList))
+
+def getGeneDesc(geneID):
+	'''This will take the gene ID of a particular gene and will return the description associated with that gene (summary which is present in NCBI gene database).
+	'''
+	url = "https://www.ncbi.nlm.nih.gov/gene/?term=" + str(geneID)
+	print("gene - " + str(geneID))
+	a = Article(url, language='en')
+	a.download()
+	article = BeautifulSoup(a.html)
+	# article.find('div',{"id" : "summaryDiv"})
+	article = article.select('div#summaryDiv')
+	if (article != []):
+		article = article[0].text.encode('utf-8')
+		articleList = article.split('\n')
+		articleTemp = articleList[:]
+		geneDict = dict()
+		for word in articleTemp:
+			if '' == word:
+				articleList.remove(word)
+		# print(articleList)
+		for i in range(0,len(articleList),2):
+			if 'symbol' in articleList[i] or 'Symbol' in articleList[i]:
+				geneDict['GeneSymbol'] = articleList[i+1]
+			elif 'description' in articleList[i]:
+				geneDict['GeneDesc'] = articleList[i+1]
+			elif 'Primary' in articleList[i]:
+				geneDict['PrimarySource'] = articleList[i+1]
+			elif 'Locus' in articleList[i]:
+				geneDict['LocusTag'] = articleList[i+1]
+			elif 'type' in articleList[i]:
+				geneDict['GeneType'] = articleList[i+1]
+			elif 'RNA' in articleList[i]:
+				geneDict['RNA-Name'] = articleList[i+1]
+			elif 'Organism' in articleList[i]:
+				geneDict['Organism'] = articleList[i+1]
+			elif 'Lineage' in articleList[i]:
+				geneDict['Lineage'] = articleList[i+1]	
+			elif 'known' in articleList[i]:
+				geneDict['AKA'] = articleList[i+1]
+	else:
+		return None										
+
+	return geneDict
+
+def getTaxonId(organismName):
+	if ' ' in organismName:
+		organismName.replace(' ', '%20')
+	url = "https://www.ncbi.nlm.nih.gov/taxonomy/?term=" + organismName + "&report=taxid&format=text"
+	taxonId = Article(url, language='en')
+	taxonId.download()
+	taxonId = BeautifulSoup(taxonId.html)
+	taxonId = taxonId.find('pre').getText()
+	return taxonId

@@ -1,15 +1,31 @@
+from ExtractGeneHelpers import getGeneDesc, getTaxonId
+
 class MemberGene(object):
 
-	def __init__(self,geneDict):
-		self.geneSymbol = geneDict['GeneSymbol'] if 'GeneSymbol' in geneDict else 'None'
-		self.geneDesc = geneDict['GeneDesc'] if 'GeneDesc' in geneDict else 'None'
-		self.primarySource = geneDict['PrimarySource'] if 'PrimarySource' in geneDict else 'None'
-		self.locusTag = geneDict['LocusTag'] if 'LocusTag' in geneDict else 'None'
-		self.geneType = geneDict['GeneType'] if 'GeneType' in geneDict else 'None'
-		self.rnaName = geneDict['RNA-Name'] if 'RNA-Name' in geneDict else 'None'
-		self.organism = geneDict['Organism'] if 'Organism' in geneDict else 'None'
-		self.lineage = geneDict['Lineage'] if 'Lineage' in geneDict else 'None'
-		self.aka = geneDict['AKA'] if 'AKA' in geneDict else 'None'		
+	def __init__(self, geneID):
+		geneDescDict = getGeneDesc(geneID)
+		if geneDescDict != None:
+			self.geneSymbol = geneDescDict['GeneSymbol'] if 'GeneSymbol' in geneDescDict else 'None'
+			self.geneDesc = geneDescDict['GeneDesc'] if 'GeneDesc' in geneDescDict else 'None'
+			self.primarySource = geneDescDict['PrimarySource'] if 'PrimarySource' in geneDescDict else 'None'
+			self.locusTag = geneDescDict['LocusTag'] if 'LocusTag' in geneDescDict else 'None'
+			self.geneType = geneDescDict['GeneType'] if 'GeneType' in geneDescDict else 'None'
+			self.rnaName = geneDescDict['RNA-Name'] if 'RNA-Name' in geneDescDict else 'None'
+			self.organism = geneDescDict['Organism'] if 'Organism' in geneDescDict else 'None'
+			self.lineage = geneDescDict['Lineage'] if 'Lineage' in geneDescDict else 'None'
+			self.aka = geneDescDict['AKA'] if 'AKA' in geneDescDict else 'None'
+			# self.taxonId = getTaxonId(self.organism) if self.organism else 'None'
+		else:
+			self.geneSymbol = 'None'
+			self.geneDesc = 'None'		
+			self.primarySource = 'None'
+			self.locusTag = 'None'
+			self.geneType = 'None'
+			self.rnaName = 'None'
+			self.organism = 'None'
+			self.lineage = 'None'
+			self.aka = 'None'
+			self.taxonId = 'None'
 
 	def getSymbol(self):
 		return self.geneSymbol
@@ -38,6 +54,9 @@ class MemberGene(object):
 	def getAka(self):
 		return self.aka
 
+	def getTaxonId(self):
+		return self.taxonId
+
 	def __str__(self):
 		return "------------- " + self.geneSymbol + " -------------" + "\n" \
 				+ "GeneDesc - " + self.geneDesc + "\n" \
@@ -49,6 +68,7 @@ class MemberGene(object):
 				+ "Lineage - " + self.lineage +  "\n" \
 				+ "AKA - " + self.aka +  "\n" \
 				+ "-----------------------------------------------" \
+
 
 
 	
