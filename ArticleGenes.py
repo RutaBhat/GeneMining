@@ -1,0 +1,2 @@
+class ArticleGenes(object):
+	
